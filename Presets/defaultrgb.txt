@@ -1,0 +1,13 @@
+backgroundcolor:black
+preset:1
+keybackgroundcolor:grey
+keyforegroundcolor:black
+font:Arial
+fontsize:16
+backgroundcolorPressed:white
+foregroundcolorPressed:black
+fontPressed:Arial
+fontsizePressed:16
+rgb:1
+rgbtype:1
+rgbspeed:3
