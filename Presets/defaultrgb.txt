@@ -9,5 +9,5 @@ foregroundcolorPressed:black
 fontPressed:Arial
 fontsizePressed:16
 rgb:1
-rgbtype:1
-rgbspeed:3
+rgbtype:0
+rgbspeed:1

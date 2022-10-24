@@ -9,13 +9,3 @@ foregroundcolorPressed:black
 fontPressed:Arial
 fontsizePressed:16
 rgb:0
-preset:2
-keybackgroundcolor:grey
-keyforegroundcolor:blue
-font:Arial
-fontsize:16
-backgroundcolorPressed:white
-foregroundcolorPressed:black
-fontPressed:Arial
-fontsizePressed:16
-rgb:0
