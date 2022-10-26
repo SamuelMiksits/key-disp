@@ -168,11 +168,11 @@ class Key:
         if self.__boldPressed and not self.__italicsPressed:
             return (self.__fontPressed, int(self.__fontsizePressed), "bold")
         if self.__boldPressed and self.__italicsPressed:
-            return (self.__font, int(self.__fontsize), "bold italic")
+            return (self.__fontPressed, int(self.__fontsizePressed), "bold italic")
         if not self.__boldPressed and self.__italicsPressed:
-            return (self.__font, int(self.__fontsize), "italic")
+            return (self.__fontPressed, int(self.__fontsizePressed), "italic")
         else:
-            return (self.__font, int(self.__fontsize))
+            return (self.__fontPressed, int(self.__fontsizePressed))
 
 #Class for the keyboard container
 class Keyboard_class:
@@ -340,14 +340,14 @@ class Keyboard_class:
         keyforegroundcolor = preset[1]
         font = preset[2]
         fontsize = preset[3]
-        bold = preset[4] == "True"
+        bold = preset[4] == "True" #Cast to bool
         italics = preset[5] == "True"
         backgroundcolorPressed = preset[6]
         foregroundcolorPressed = preset[7]
         fontPressed = preset[8]
         fontsizePressed = preset[9]
-        boldPressed = preset[10]
-        italicsPressed = preset[11]
+        boldPressed = preset[10] == "True"
+        italicsPressed = preset[11] == "True"
         rgb = preset[12]
 
         if len(preset) == 13:
