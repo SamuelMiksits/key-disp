@@ -51,17 +51,21 @@ def rgb_thread(e):
 #Keyboard object has a list of presets, and then a key will belong to one of the presets defined in the preset file
 class Preset:
 
-    def __init__(self, keybackgroundcolor, keyforegroundcolor, font, fontsize,\
-    backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, rgb, rgbtype = None, rgbspeed = None):
+    def __init__(self, keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics,\
+    backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, boldPressed, italicsPressed, rgb, rgbtype = None, rgbspeed = None):
 
         self.keybackgroundcolor = keybackgroundcolor #Background color of the key when unpressed
         self.keyforegroundcolor = keyforegroundcolor #Foreground color (aka text color) when unpressed
         self.font = font #Font of the text when the key is unpressed
         self.fontsize = fontsize #Size of the key text font when the key is unpressed
+        self.bold = bold #Is the font bold when key is unpressed? (bool)
+        self.italics = italics #Is the font in italics when key is unpressed? (bool)
         self.backgroundcolorPressed = backgroundcolorPressed #Background color of the key when pressed
         self.foregroundcolorPressed = foregroundcolorPressed #Foreground color (aka text color) when the key is pressed
         self.fontPressed = fontPressed #Font of the text when the key is unpressed
         self.fontsizePressed = fontsizePressed #Size of the key text font when the key is unpressed
+        self.boldPressed = boldPressed #Is the font bold when key is pressed? (bool)
+        self.italicsPressed = italicsPressed #is the font in italics when key is pressed? (bool)
         self.rgb = rgb #Does the key have RGB? "1" = Yes, any other value = No
         self.rgbtype = rgbtype #Which algorithm will be used for determining key color? (currently 0 and 1 are supported, see rgb_thread())
         self.rgbspeed = rgbspeed #Speed multiplier for the rbg algorithm
@@ -109,10 +113,14 @@ class Key:
         self.__keyforegroundcolor = preset.keyforegroundcolor
         self.__font = preset.font
         self.__fontsize = preset.fontsize
+        self.__bold = preset.bold
+        self.__italics = preset.italics
         self.__backgroundcolorPressed = preset.backgroundcolorPressed
         self.__foregroundcolorPressed = preset.foregroundcolorPressed
         self.__fontPressed = preset.fontPressed
         self.__fontsizePressed = preset.fontsizePressed
+        self.__boldPressed = preset.boldPressed
+        self.__italicsPressed = preset.italicsPressed
         self.rgb = preset.rgb
         self.rgbtype = preset.rgbtype
         self.rgbspeed = preset.rgbspeed
@@ -122,7 +130,7 @@ class Key:
         self.labelFrame = tk.Frame(Globals.KB, width=self.__width, height=self.__height,bg=self.__keybackgroundcolor) #Place the label itself on a frame. This way we can use pixel based label size instead of
         self.labelFrame.pack_propagate(0)                                                                     #char based sizing, which will screw up the size of the frame if we change font size
 
-        self.label = tk.Label(self.labelFrame, text=self.lowercase, font=(self.__font,int(self.__fontsize)))
+        self.label = tk.Label(self.labelFrame, text=self.lowercase, font=self.getfont())
         self.label.configure(bg=self.__keybackgroundcolor, fg=self.__keyforegroundcolor)
         self.label.place(relx=0.5,rely=0.5, anchor=tk.CENTER)
 
@@ -133,15 +141,38 @@ class Key:
 
     #Change key color when you press a key
     def hotkeyPress(self,e):
-        self.label.configure(bg=self.__backgroundcolorPressed,fg=self.__foregroundcolorPressed, font=(self.__fontPressed, int(self.__fontsizePressed))) #Change background color on label
+        self.label.configure(bg=self.__backgroundcolorPressed,fg=self.__foregroundcolorPressed, font=self.getfontPressed()) #Change background color on label
         self.labelFrame.configure(bg=self.__backgroundcolorPressed)                                                                                     #You also need to change the color on the label frame
         self.isPressed = True
 
     #Change key color back to the unpressed key color when you release it
     def hotkeyRelease(self,e):
-        self.label.configure(bg=self.__keybackgroundcolor,fg=self.__keyforegroundcolor, font=(self.__font, int(self.__fontsize)))
+        self.label.configure(bg=self.__keybackgroundcolor,fg=self.__keyforegroundcolor, font=self.getfont())
         self.labelFrame.configure(bg=self.__keybackgroundcolor)
         self.isPressed = False
+
+    #Method that returns font tuple used for the text on the label: (font, fontsize, bold/italics), for unpressed key state
+    def getfont(self):
+        if self.__bold and not self.__italics:
+            return (self.__font, int(self.__fontsize), "bold")
+        if self.__bold and self.__italics:
+            return (self.__font, int(self.__fontsize), "bold italic")
+        if not self.__bold and self.__italics:
+            return (self.__font, int(self.__fontsize), "italic")
+        else:
+            return (self.__font, int(self.__fontsize))
+            
+
+    #Method that returns font tuple used for the text on the label: (font, fontsize, bold/italics), for pressed key state
+    def getfontPressed(self):
+        if self.__boldPressed and not self.__italicsPressed:
+            return (self.__fontPressed, int(self.__fontsizePressed), "bold")
+        if self.__boldPressed and self.__italicsPressed:
+            return (self.__font, int(self.__fontsize), "bold italic")
+        if not self.__boldPressed and self.__italicsPressed:
+            return (self.__font, int(self.__fontsize), "italic")
+        else:
+            return (self.__font, int(self.__fontsize))
 
 #Class for the keyboard container
 class Keyboard_class:
@@ -290,51 +321,45 @@ class Keyboard_class:
             if line[0] == "preset" and len(preset) != 0:
                 if j == 0:
                     preset.pop(0)
-
-                #Convert list to strings so that the constructor is easier to follow 
-                
-                pr = preset
-
-                keybackgroundcolor = pr[0]
-                keyforegroundcolor = pr[1]
-                font = pr[2]
-                fontsize = pr[3]
-                backgroundcolorPressed = pr[4]
-                foregroundcolorPressed = pr[5]
-                fontPressed = pr[6]
-                fontsizePressed = pr[7]
-                rgb = pr[8]
-
-                if len(preset) == 9:
-                    pr = preset
-                    presetList.append(Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, rgb))
-                elif len(preset) > 9: 
-
-                    rgbtype = pr[9]
-                    rgbspeed = pr[10]
-
-                    pr = preset
-                    presetList.append(Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, rgb, rgbtype, rgbspeed))
-                else:
-                    raise debug.PresetError("Invalid amount of preset parameters in preset " + str(j+1))
-                j += 1
-                preset = list()
+                presetList.append(self.__createPreset(preset, j))
             else:
                 preset.append(line[1])
             i += 1
 
+        #There will be another preset after the last occurence of the word "preset"
         if len(presetList) == 0:
             preset.pop(0)
-        if len(preset) == 9:
-            pr = preset
-            presetList.append(Preset(pr[0], pr[1], pr[2], pr[3], pr[4], pr[5], pr[6], pr[7], pr[8]))
-        elif len(preset) > 9: 
-            pr = preset
-            presetList.append(Preset(pr[0], pr[1], pr[2], pr[3], pr[4], pr[5], pr[6], pr[7], pr[8], pr[9], pr[10]))
-        else:
-            raise debug.PresetError("Invalid amount of preset parameters in preset " + str(j+1))
+        presetList.append(self.__createPreset(preset, j))
 
         return presetList
+
+    #Helper method for creating the preset, to make the code less bloated
+    def __createPreset(self, preset, num):
+
+        keybackgroundcolor = preset[0]
+        keyforegroundcolor = preset[1]
+        font = preset[2]
+        fontsize = preset[3]
+        bold = preset[4] == "True"
+        italics = preset[5] == "True"
+        backgroundcolorPressed = preset[6]
+        foregroundcolorPressed = preset[7]
+        fontPressed = preset[8]
+        fontsizePressed = preset[9]
+        boldPressed = preset[10]
+        italicsPressed = preset[11]
+        rgb = preset[12]
+
+        if len(preset) == 13:
+            return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, bold, italics, rgb)
+        elif len(preset) > 13: 
+
+            rgbtype = preset[13]
+            rgbspeed = preset[14]
+            return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, boldPressed, italicsPressed, rgb, rgbtype, rgbspeed)
+        else:
+            raise debug.PresetError("Invalid amount of preset parameters in preset " + str(num+1))
+
 
     #Loads the path for the preset file
     def __presetPath(self):

@@ -4,10 +4,14 @@ keybackgroundcolor:grey
 keyforegroundcolor:black
 font:Arial
 fontsize:16
+bold:False
+italics:False
 backgroundcolorPressed:white
 foregroundcolorPressed:black
 fontPressed:Arial
 fontsizePressed:16
+boldPressed:False
+italicsPressed:False
 rgb:1
 rgbtype:0
 rgbspeed:1
