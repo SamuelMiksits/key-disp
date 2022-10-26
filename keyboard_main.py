@@ -421,6 +421,7 @@ class Keyboard_class:
         # Save current active preset to settings.txt
         self.__frame.destroy()
 
+    #Handle lower/uppercase when left shift is pressed
     def __leftShiftPress(self, e):
 
         if self.leftshiftPressed == True: #If you hold a key it will register multiple of the same event, dont need to do anything
@@ -451,6 +452,7 @@ class Keyboard_class:
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].lowercase)
 
+    #Handle lower/uppercase when left shift is released
     def __leftShiftRelease(self, e):
 
         self.leftshiftPressed = False
@@ -473,7 +475,8 @@ class Keyboard_class:
             for i in range(len(self.buttonList)):
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
-                
+    
+    #Handle lower/uppercase when right shift is pressed
     def __rightShiftPress(self, e):
 
         if self.rightshiftPressed == True: #If you hold a key it will register multiple of the same event, dont need to do anything
@@ -504,6 +507,7 @@ class Keyboard_class:
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].lowercase)
 
+    #Handle lower/uppercase when right shift is released
     def __rightShiftRelease(self, e):
 
         self.rightshiftPressed = False
@@ -527,11 +531,12 @@ class Keyboard_class:
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
 
+    #Handle lower/uppercase when caps lock is toggled
     def __capslock(self,e):
 
         self.capslockPressed = not self.capslockPressed
 
-        if (not self.leftshiftPressed and self.capslockPressed) or (self.leftshiftPressed and not self.capslockPressed):
+        if (not (self.leftshiftPressed or self.rightshiftPressed) and self.capslockPressed) or ((self.leftshiftPressed or self.rightshiftPressed) and not self.capslockPressed):
             for i in range(len(self.buttonList)):
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
