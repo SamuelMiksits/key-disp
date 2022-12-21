@@ -83,13 +83,13 @@ key=53:lowercase=-:uppercase=_:shift=True:Caps=True:posx=575:posy=230:width=40:h
 key=54:lowercase=⇧:uppercase=⇧:shift=False:Caps=False:posx=625:posy=230:width=125:height=40:preset=1
 key=72:lowercase=↑:uppercase=↑:shift=False:Caps=False:posx=820:posy=230:width=40:height=40:preset=1
 #row6
-key=29:lowercase=Ctrl:uppercase=Ctrl:shift=False:Caps=False:posx=10:posy=280:width=55:height=40:preset=1
+key=ctrl:lowercase=Ctrl:uppercase=Ctrl:shift=False:Caps=False:posx=10:posy=280:width=55:height=40:preset=1
 key=91:lowercase=Win:uppercase=Win:shift=False:Caps=False:posx=75:posy=280:width=55:height=40:preset=1
-key=56:lowercase=Alt:uppercase=Alt:shift=False:Caps=False:posx=140:posy=280:width=55:height=40:preset=1
+key=alt:lowercase=Alt:uppercase=Alt:shift=False:Caps=False:posx=140:posy=280:width=55:height=40:preset=1
 key=57:lowercase=Space:uppercase=Space:shift=False:Caps=False:posx=205:posy=280:width=350:height=40:preset=1
-key=56:lowercase=Alt:uppercase=Alt:shift=False:Caps=False:posx=565:posy=280:width=55:height=40:preset=1
+key=alt gr:lowercase=Alt:uppercase=Alt:shift=False:Caps=False:posx=565:posy=280:width=55:height=40:preset=1
 key=92:lowercase=Win:uppercase=Win:shift=False:Caps=False:posx=630:posy=280:width=55:height=40:preset=1
-key=höger crtl:lowercase=Ctrl:uppercase=Ctrl:shift=False:Caps=False:posx=695:posy=280:width=55:height=40:preset=1
+key=right ctrl:lowercase=Ctrl:uppercase=Ctrl:shift=False:Caps=False:posx=695:posy=280:width=55:height=40:preset=1
 key=75:lowercase=←:uppercase=←:shift=False:Caps=False:posx=770:posy=280:width=40:height=40:preset=1
 key=80:lowercase=↓:uppercase=↓:shift=False:Caps=False:posx=820:posy=280:width=40:height=40:preset=1
 key=77:lowercase=→:uppercase=→:shift=False:Caps=False:posx=870:posy=280:width=40:height=40:preset=1
