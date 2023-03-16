@@ -1,4 +1,4 @@
-size=920x330
+size=1100x330
 #row1
 key=1:lowercase=Esc:uppercase=Esc:shift=False:Caps=False:posx=10:posy=10:width=40:height=40:preset=1
 key=59:lowercase=F1:uppercase=F1:shift=False:Caps=False:posx=110:posy=10:width=40:height=40:preset=1
@@ -93,3 +93,7 @@ key=right ctrl:lowercase=Ctrl:uppercase=Ctrl:shift=False:Caps=False:posx=695:pos
 key=75:lowercase=←:uppercase=←:shift=False:Caps=False:posx=770:posy=280:width=40:height=40:preset=1
 key=80:lowercase=↓:uppercase=↓:shift=False:Caps=False:posx=820:posy=280:width=40:height=40:preset=1
 key=77:lowercase=→:uppercase=→:shift=False:Caps=False:posx=870:posy=280:width=40:height=40:preset=1
+key=mouse.LEFT:lowercase=lmb:uppercase=lmb:shift=False:Caps=False:posx=925:posy=280:width=40:height=40:preset=1
+key=mouse.MIDDLE:lowercase=mmb:uppercase=mmb:shift=False:Caps=False:posx=975:posy=280:width=40:height=40:preset=1
+key=mouse.RIGHT:lowercase=rmb:uppercase=rmb:shift=False:Caps=False:posx=1025:posy=280:width=40:height=40:preset=1
+key=mouseindicator:sensitivity=3:limit=60:shift=False:Caps=False:posx=990:posy=150:width=10:height=10:preset=1

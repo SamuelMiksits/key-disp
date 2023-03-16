@@ -5,7 +5,6 @@ from tkinter import filedialog
 import keyboard
 import threading
 import time
-import debug
 
 class Globals:
     EDITOR = None #Hardcoding, uses a globally stored reference for the instance of the keyboard

@@ -1,11 +1,24 @@
 import tkinter as tk
 import keyboard
+import mouse
 import threading
 import time
-import debug
+
+#When errors are present in a layout file
+class LayoutError(Exception):
+    pass
+
+#Error in preset file
+class PresetError(Exception):
+    pass
 
 class Globals:
     KB = None #Hardcoding, uses a globally stored reference for the instance of the keyboard
+    mousebuttons = ["mouse.LEFT", "mouse.RIGHT", "mouse.MIDDLE"]
+    mousedict = {"mouse.LEFT" : mouse.LEFT, #jank solution, string parsing by "dictionary casting"
+                 "mouse.RIGHT" : mouse.RIGHT,
+                 "mouse.MIDDLE" : mouse.MIDDLE}
+    mouseindicatorIndex = 0
 
 #RGB color wheel. This color wheel is looped through to determine the color of the RGB enabled keys
 #The file rgb.txt is generated through a program called devtools/generatecolorwheel. The program outputs the rgb.txt file created in the devtools folder
@@ -36,6 +49,7 @@ def rgb_thread(e):
             i += 1
             if i == len(rgbwheel) - 1:
                 i = 0
+
     #See comment above
     if Globals.KB.buttonList[0].rgbtype == "1": #Second RGB mode, Color "moves" across the keyboard, 
         while True:                             #only works properly if the "layout" file has the keys in order on each row and has a row per row order
@@ -47,6 +61,46 @@ def rgb_thread(e):
             i += 1
             if i == len(rgbwheel) - 1:
                 i = 0
+
+def mouseind_thread(e):
+
+    #lowercase = sensitivity
+    #uppercase = limit
+    sensitivity = float(Globals.KB.buttonList[Globals.mouseindicatorIndex].lowercase)
+    limit = int(Globals.KB.buttonList[Globals.mouseindicatorIndex].uppercase)
+    posx = int(Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatorx)
+    posy = int(Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatory)
+
+    oldx = 0
+    oldy = 0
+    x = 0
+    y = 0
+    while True:
+        (oldx, oldy) = (x,y)
+        (x,y) = mouse.get_position()
+
+        dx = x - oldx
+        dy = y - oldy
+
+        dx = dx/sensitivity #change to sensitivity in the future
+        dy = dy/sensitivity
+
+        if dx > limit:
+            dx = limit
+        if dx < -limit:
+            dx = -limit
+        if dy > limit:
+            dy = limit
+        if dy < -limit:
+            dy = -limit
+
+        #print("dx: ", dx, " dy: ", dy)
+        stringdx = str(posx + dx)
+        stringdy = str(posy + dy)
+
+        Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatorframe.place(x=stringdx, y=stringdy)
+
+        time.sleep(1/60)
 
 #Keyboard object has a list of presets, and then a key will belong to one of the presets defined in the preset file
 class Preset:
@@ -93,10 +147,9 @@ class Layout:
 #Class for the key, attributes depend on the layout and preset from the 
 class Key:
 
-    def __init__(self, layout, preset):
+    def __init__(self, layout, preset, i):
 
         #Key based information (key scan code, key text, key position)
- 
         self.__scancode = layout.scancode
         self.lowercase = layout.lowercase
         self.uppercase = layout.uppercase
@@ -135,9 +188,25 @@ class Key:
         self.label.place(relx=0.5,rely=0.5, anchor=tk.CENTER)
 
         self.labelFrame.place(y=self.__posy, x=self.__posx)
+        
+        if self.__scancode not in Globals.mousebuttons and self.__scancode != "mouseindicator": # If it is not a mouse button, it is a keyboard button
+            keyboard.on_press_key(self.__scancode, self.hotkeyPress)
+            keyboard.on_release_key(self.__scancode, self.hotkeyRelease)
 
-        keyboard.on_press_key(self.__scancode, self.hotkeyPress)
-        keyboard.on_release_key(self.__scancode, self.hotkeyRelease)
+        elif self.__scancode in Globals.mousebuttons:
+            mouse.on_button(self.hotkeyPress, (self,), Globals.mousedict[self.__scancode], (mouse.DOWN))
+            mouse.on_button(self.hotkeyRelease, (self,), Globals.mousedict[self.__scancode], (mouse.UP))
+
+        if self.__scancode == "mouseindicator":
+            self.label.configure(text="") #It puts the "sensitivity" as the text, this just blanks it out
+            Globals.mouseindicatorIndex = i
+            self.mouseindicatorframe = tk.Frame(Globals.KB, width=self.__width, height=self.__height,bg=self.__keybackgroundcolor)
+            self.mouseindicatorframe.pack_propagate(0)
+            self.mouseindicator = tk.Label(self.mouseindicatorframe, text="",bg="grey")
+            self.mouseindicator.place(relx=0.5,rely=0.5, anchor=tk.CENTER)
+            self.mouseindicatorframe.place(x=self.__posx, y=self.__posy)
+            self.mouseindicatorx = self.__posx
+            self.mouseindicatory = self.__posy
 
     #Change key color when you press a key
     def hotkeyPress(self,e):
@@ -190,9 +259,11 @@ class Keyboard_class:
         self.__frame.protocol("WM_DELETE_WINDOW", self.__shutdown)
 
         self.buttonList = list()
+
+        self.y = threading.Thread(target=mouseind_thread, args=(self,), daemon=True) #Daemon makes the thread stop when the (keyboard) window is closed, the program would otherwise run perpetually
         
         for i in range(len(self.__layoutList)):
-            self.buttonList.append(Key(self.__layoutList[i], self.__presetList[self.__layoutList[i].presetNumber-1]))
+            self.buttonList.append(Key(self.__layoutList[i], self.__presetList[self.__layoutList[i].presetNumber-1],i))
 
         if self.buttonList[0].rgb == "1":
             self.x = threading.Thread(target=rgb_thread, args=(self,), daemon=True) #Daemon makes the thread stop when the (keyboard) window is closed, the program would otherwise run perpetually
@@ -210,6 +281,16 @@ class Keyboard_class:
         self.capslockPressed = False
         self.leftshiftPressed = False
         self.rightshiftPressed = False
+
+    def left_mouse_press(self):
+        self.buttonList[0].label.configure(bg="white")
+        self.buttonList[0].labelFrame.configure(bg="white")
+        self.buttonList[0].isPressed = True
+
+    def left_mouse_release(self):
+        self.buttonList[0].label.configure(bg="grey")
+        self.buttonList[0].labelFrame.configure(bg="grey")
+        self.buttonList[0].isPressed = False
         
     #Reads layout on startup from the file \settings.txt
     def __getLayout(self):
@@ -294,7 +375,7 @@ class Keyboard_class:
                             f.close()
                             break
                         except:
-                            raise debug.LayoutError("Error opening layout file, file does not exist!")
+                            raise LayoutError("Error opening layout file, file does not exist!")
                         
         return layout
 
@@ -322,13 +403,13 @@ class Keyboard_class:
                 if j == 0:
                     preset.pop(0)
                 presetList.append(self.__createPreset(preset, j))
+                preset = list()
+                j += 1
             else:
                 preset.append(line[1])
             i += 1
 
-        #There will be another preset after the last occurence of the word "preset"
-        if len(presetList) == 0:
-            preset.pop(0)
+        preset.pop(0)
         presetList.append(self.__createPreset(preset, j))
 
         return presetList
@@ -353,12 +434,11 @@ class Keyboard_class:
         if len(preset) == 13:
             return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, bold, italics, rgb)
         elif len(preset) > 13: 
-
             rgbtype = preset[13]
             rgbspeed = preset[14]
             return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, boldPressed, italicsPressed, rgb, rgbtype, rgbspeed)
         else:
-            raise debug.PresetError("Invalid amount of preset parameters in preset " + str(num+1))
+            raise PresetError("Invalid amount of preset parameters in preset " + str(num+1))
 
 
     #Loads the path for the preset file
@@ -383,7 +463,7 @@ class Keyboard_class:
                             f.close()
                             break
                         except:
-                            raise debug.PresetError("Error opening preset file, file does not exist!")
+                            raise PresetError("Error opening preset file, file does not exist!")
                         
         return preset
 
@@ -401,7 +481,7 @@ class Keyboard_class:
                 size = tmp[1].strip()
 
         if size == None:
-            raise debug.LayoutError("Invalid Layout file! 'size' entry either missing or incorrect!")
+            raise LayoutError("Invalid Layout file! 'size' entry either missing or incorrect!")
 
         return size
 
@@ -554,7 +634,15 @@ def main():
     #If it has RGB, start it here
     if Globals.KB.hasRGB():
         Globals.KB.x.start()
+
+    #Check if the index index has mouseindicatorframe attribute 
+    try:
+        if Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatorframe != None:
+            Globals.KB.y.start()
+    except:
+        pass
     
+    #Globals.KB.thready.start()
     root.mainloop()
 
 if __name__ == "__main__":
