@@ -64,8 +64,6 @@ def rgb_thread(e):
 
 def mouseind_thread(e):
 
-    #lowercase = sensitivity
-    #uppercase = limit
     sensitivity = float(Globals.KB.buttonList[Globals.mouseindicatorIndex].lowercase)
     limit = int(Globals.KB.buttonList[Globals.mouseindicatorIndex].uppercase)
     posx = int(Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatorx)
@@ -94,7 +92,6 @@ def mouseind_thread(e):
         if dy < -limit:
             dy = -limit
 
-        #print("dx: ", dx, " dy: ", dy)
         stringdx = str(posx + dx)
         stringdy = str(posy + dy)
 
@@ -161,7 +158,6 @@ class Key:
         self.__height = layout.height
 
         #Preset based information (color, font, position, size)
-
         self.__keybackgroundcolor = preset.keybackgroundcolor
         self.__keyforegroundcolor = preset.keyforegroundcolor
         self.__font = preset.font
@@ -511,9 +507,9 @@ class Keyboard_class:
 
         #For keys that are affected by shift only
 
-        if self.leftshiftPressed and not self.capslockPressed:
+        if self.leftshiftPressed:
             for i in range(len(self.buttonList)):
-                if self.buttonList[i].shift:
+                if self.buttonList[i].shift and not self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
 
         #For keys that are affected by both caps lock and shift
@@ -566,9 +562,9 @@ class Keyboard_class:
 
         #For keys that are affected by shift only
 
-        if self.rightshiftPressed and not self.capslockPressed:
+        if self.rightshiftPressed:
             for i in range(len(self.buttonList)):
-                if self.buttonList[i].shift:
+                if self.buttonList[i].shift and not self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
 
         #For keys that are affected by both caps lock and shift
@@ -642,7 +638,6 @@ def main():
     except:
         pass
     
-    #Globals.KB.thready.start()
     root.mainloop()
 
 if __name__ == "__main__":
