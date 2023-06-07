@@ -396,8 +396,7 @@ class Keyboard_class:
         while i < len(presetListRaw):
             line = presetListRaw[i].split(":")
             if line[0] == "preset" and len(preset) != 0:
-                if j == 0:
-                    preset.pop(0)
+                preset.pop(0)
                 presetList.append(self.__createPreset(preset, j))
                 preset = list()
                 j += 1
@@ -405,7 +404,8 @@ class Keyboard_class:
                 preset.append(line[1])
             i += 1
 
-        preset.pop(0)
+        if len(presetList) == 0:
+            preset.pop(0)
         presetList.append(self.__createPreset(preset, j))
 
         return presetList
