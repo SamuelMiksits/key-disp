@@ -51,7 +51,7 @@ def rgb_thread(e):
                 i = 0
 
     #See comment above
-    if Globals.KB.buttonList[0].rgbtype == "1": #Second RGB mode, Color "moves" across the keyboard, 
+    if Globals.KB.buttonList[0].rgbtype == "1": #Second RGB mode, Color "moves" across the keyboard,
         while True:                             #only works properly if the "layout" file has the keys in order on each row and has a row per row order
             time.sleep(1/(60*float(Globals.KB.buttonList[0].rgbspeed)))
             for j in range(len(Globals.KB.buttonList)):
@@ -123,7 +123,7 @@ class Preset:
 
 #Layout information, what key is it (scan code/text expression), lower and uppercase text that appear on the key, geometry and which preset it adheres to.
 class Layout:
-    
+
     def __init__(self, scancode, lowercase, uppercase, shift, caps, posx, posy, width, height, presetNumber):
 
         try: #The contstructor supports using either scancode number or text version of key
@@ -141,10 +141,10 @@ class Layout:
         self.height = height #height of the key
         self.presetNumber = presetNumber #Which preset in the preset list this key uses
 
-#Class for the key, attributes depend on the layout and preset from the 
+#Class for the key, attributes depend on the layout and preset from the
 class Key:
 
-    def __init__(self, layout, preset, i):
+    def __init__(self, layout, preset, i, keyboard_size):
 
         #Key based information (key scan code, key text, key position)
         self.__scancode = layout.scancode
@@ -176,15 +176,22 @@ class Key:
 
         self.isPressed = False
 
-        self.labelFrame = tk.Frame(Globals.KB, width=self.__width, height=self.__height,bg=self.__keybackgroundcolor) #Place the label itself on a frame. This way we can use pixel based label size instead of
-        self.labelFrame.pack_propagate(0)                                                                     #char based sizing, which will screw up the size of the frame if we change font size
+        self.labelFrame = tk.Frame(Globals.KB, width=self.__width, height=self.__height, bg=self.__keybackgroundcolor) #Place the label itself on a frame. This way we can use pixel based label size instead of
+        self.labelFrame.pack_propagate(0)                                                                              #char based sizing, which will screw up the size of the frame if we change font size
+
 
         self.label = tk.Label(self.labelFrame, text=self.lowercase, font=self.getfont())
         self.label.configure(bg=self.__keybackgroundcolor, fg=self.__keyforegroundcolor)
         self.label.place(relx=0.5,rely=0.5, anchor=tk.CENTER)
 
-        self.labelFrame.place(y=self.__posy, x=self.__posx)
-        
+        #global keyboard width/height:
+        keyboard_size = keyboard_size.split("x")
+        keyboard_width = float(keyboard_size[0])
+        keyboard_height = float(keyboard_size[1])
+
+        self.labelFrame.place(relx=(float(self.__posx)/keyboard_width), rely=(float(self.__posy)/keyboard_height),\
+                               relwidth=(float(self.__width)/keyboard_width), relheight=(float(self.__height)/keyboard_height))
+
         if self.__scancode not in Globals.mousebuttons and self.__scancode != "mouseindicator": # If it is not a mouse button, it is a keyboard button
             keyboard.on_press_key(self.__scancode, self.hotkeyPress)
             keyboard.on_release_key(self.__scancode, self.hotkeyRelease)
@@ -226,7 +233,7 @@ class Key:
             return (self.__font, int(self.__fontsize), "italic")
         else:
             return (self.__font, int(self.__fontsize))
-            
+
 
     #Method that returns font tuple used for the text on the label: (font, fontsize, bold/italics), for pressed key state
     def getfontPressed(self):
@@ -257,9 +264,9 @@ class Keyboard_class:
         self.buttonList = list()
 
         self.y = threading.Thread(target=mouseind_thread, args=(self,), daemon=True) #Daemon makes the thread stop when the (keyboard) window is closed, the program would otherwise run perpetually
-        
+
         for i in range(len(self.__layoutList)):
-            self.buttonList.append(Key(self.__layoutList[i], self.__presetList[self.__layoutList[i].presetNumber-1],i))
+            self.buttonList.append(Key(self.__layoutList[i], self.__presetList[self.__layoutList[i].presetNumber-1], i, self.__getSize()))
 
         if self.buttonList[0].rgb == "1":
             self.x = threading.Thread(target=rgb_thread, args=(self,), daemon=True) #Daemon makes the thread stop when the (keyboard) window is closed, the program would otherwise run perpetually
@@ -271,7 +278,7 @@ class Keyboard_class:
 
         keyboard.on_press_key(54, self.__rightShiftPress) #Add right shift events
         keyboard.on_release_key(54, self.__rightShiftRelease)
-        
+
         keyboard.on_press_key(58, self.__capslock) #Caps lock event
 
         self.capslockPressed = False
@@ -287,7 +294,7 @@ class Keyboard_class:
         self.buttonList[0].label.configure(bg="grey")
         self.buttonList[0].labelFrame.configure(bg="grey")
         self.buttonList[0].isPressed = False
-        
+
     #Reads layout on startup from the file \settings.txt
     def __getLayout(self):
 
@@ -339,7 +346,7 @@ class Keyboard_class:
 
         return layoutList
 
-    #A function which checks if the loaded keyboard has RGB. If either a preset has RGB=1 or 
+    #A function which checks if the loaded keyboard has RGB. If either a preset has RGB=1 or
     def hasRGB(self):
 
         RGB = False
@@ -372,7 +379,7 @@ class Keyboard_class:
                             break
                         except:
                             raise LayoutError("Error opening layout file, file does not exist!")
-                        
+
         return layout
 
     #Reads the preset on startup from the file \settings.txt
@@ -391,7 +398,7 @@ class Keyboard_class:
         i = 0 #Current item in the full list of parameters
         j = 0 #Current preset
         presetList = list()
-        preset = list() #The current preset 
+        preset = list() #The current preset
 
         while i < len(presetListRaw):
             line = presetListRaw[i].split(":")
@@ -429,7 +436,7 @@ class Keyboard_class:
 
         if len(preset) == 13:
             return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, bold, italics, rgb)
-        elif len(preset) > 13: 
+        elif len(preset) > 13:
             rgbtype = preset[13]
             rgbspeed = preset[14]
             return Preset(keybackgroundcolor, keyforegroundcolor, font, fontsize, bold, italics, backgroundcolorPressed, foregroundcolorPressed, fontPressed, fontsizePressed, boldPressed, italicsPressed, rgb, rgbtype, rgbspeed)
@@ -460,7 +467,7 @@ class Keyboard_class:
                             break
                         except:
                             raise PresetError("Error opening preset file, file does not exist!")
-                        
+
         return preset
 
     #Load the keyboard window size (from the layout file)
@@ -490,7 +497,7 @@ class Keyboard_class:
         tmp = tmp[0].split(":")[1].strip()
         return tmp
 
-    #Run process during shutdown, terminates the 
+    #Run process during shutdown, terminates the
     def __shutdown(self):
         #To be added:
         # Save current active layout to settings.txt (so that the current setups gets remembered for next startup)
@@ -503,7 +510,7 @@ class Keyboard_class:
         if self.leftshiftPressed == True: #If you hold a key it will register multiple of the same event, dont need to do anything
             return
 
-        self.leftshiftPressed = True #If shiftPressed is already True, then both shifts are now pressed 
+        self.leftshiftPressed = True #If shiftPressed is already True, then both shifts are now pressed
 
         #For keys that are affected by shift only
 
@@ -546,19 +553,19 @@ class Keyboard_class:
             for i in range(len(self.buttonList)):
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].lowercase)
-                
+
         if not (self.leftshiftPressed or self.rightshiftPressed) and self.capslockPressed:
             for i in range(len(self.buttonList)):
                 if self.buttonList[i].shift and self.buttonList[i].caps:
                     self.buttonList[i].label.configure(text=self.buttonList[i].uppercase)
-    
+
     #Handle lower/uppercase when right shift is pressed
     def __rightShiftPress(self, e):
 
         if self.rightshiftPressed == True: #If you hold a key it will register multiple of the same event, dont need to do anything
             return
 
-        self.rightshiftPressed = True #If shiftPressed is already True, then both shifts are now pressed 
+        self.rightshiftPressed = True #If shiftPressed is already True, then both shifts are now pressed
 
         #For keys that are affected by shift only
 
@@ -631,13 +638,13 @@ def main():
     if Globals.KB.hasRGB():
         Globals.KB.x.start()
 
-    #Check if the index index has mouseindicatorframe attribute 
+    #Check if the index index has mouseindicatorframe attribute
     try:
         if Globals.KB.buttonList[Globals.mouseindicatorIndex].mouseindicatorframe != None:
             Globals.KB.y.start()
     except:
         pass
-    
+
     root.mainloop()
 
 if __name__ == "__main__":

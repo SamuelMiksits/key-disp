@@ -69,7 +69,7 @@ key=28:lowercase=↵:uppercase=↵:shift=False:Caps=False:posx=700:posy=130:widt
 key=28:lowercase=IGNORE:uppercase=IGNORE:shift=False:Caps=False:posx=685:posy=130:width=15:height=40:preset=1
 #row5
 key=42:lowercase=⇧:uppercase=⇧:shift=False:Caps=False:posx=10:posy=230:width=55:height=40:preset=1
-key=86:lowercase=<:uppercase=>:shift=True:Caps=True:posx=75:posy=230:width=40:height=40:preset=1
+key=86:lowercase=<:uppercase=>:shift=True:Caps=False:posx=75:posy=230:width=40:height=40:preset=1
 key=44:lowercase=z:uppercase=Z:shift=True:Caps=True:posx=125:posy=230:width=40:height=40:preset=1
 key=45:lowercase=x:uppercase=X:shift=True:Caps=True:posx=175:posy=230:width=40:height=40:preset=1
 key=46:lowercase=c:uppercase=C:shift=True:Caps=True:posx=225:posy=230:width=40:height=40:preset=1

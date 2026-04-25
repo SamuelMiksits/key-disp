@@ -1,2 +1,2 @@
-layout:swedish
+layout:english_us
 preset:default
